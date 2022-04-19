@@ -14,24 +14,38 @@ class CoronaPlot:
         ''' Returns chart and view which plots the alignment map of the query sequence'''
         ####### Chache with json file????? ######## 
         df = self.dataframes.make_alignment_df()
+        df['gene'] = ['E' if 26245 <= x <= 26472 else 
+                                'M' if 26523 <= x <= 27191 else
+                                'N' if 28274 <= x <= 29533 else
+                                'ORF1a' if 266 <= x <= 13468 else
+                                'ORF1b' if 13468 <= x <= 21555 else
+                                'ORF3a' if 25393 <= x <= 26220 else
+                                'ORF6' if 27202 <= x <= 27387 else
+                                'ORF7a' if 27394 <= x <= 27759 else
+                                'ORF7b' if 27756 <= x <= 27887 else
+                                'ORF8' if 27894 <= x <= 28259 else
+                                'ORF9b' if 28284 <= x <= 28577 else
+                                'S' if 21563 <= x <= 25384 else
+                                'None' for x in df.position]
+        
         interval = alt.selection_interval(encodings=['x'])
 
         base = alt.Chart(df, title="Coverage and mutations").mark_rect().encode(
-            x=alt.X('pos:N', axis=alt.Axis(labels=False, ticks=False)),
+            x=alt.X('position:N', axis=alt.Axis(labels=False, ticks=False)),
             y='id:N',
             color=alt.Color('max(value):N', legend=None, scale=alt.Scale(domain=[0,-1, -2, 1], range=['white', 'red', 'black', 'green'])),
-            tooltip=[alt.Tooltip('nt:N', title='nt'), alt.Tooltip('pos:N', title='Position'), alt.Tooltip('ref:N', title='Reference')])
+            tooltip=[alt.Tooltip('nt:N', title='nt'), 
+                     alt.Tooltip('position:N', title='Position'), 
+                     alt.Tooltip('ref:N', title='Reference'),
+                     alt.Tooltip('gene:N', title='Gene')])
 
-        chart = base.encode(x=alt.X('pos:N', scale=alt.Scale(domain=interval.ref()), axis=alt.Axis(labels=False, ticks=False))
-            ).properties(width=1200, height=300
-            )
+        chart = base.encode(x=alt.X('position:N', scale=alt.Scale(domain=interval.ref()), axis=alt.Axis(labels=False, ticks=False))
+            ).properties(width=1200, height=300)
 
         view = base.add_selection(interval
         ).properties(width=1200, height=100)
 
-
         return chart, view
-        
         
     def plot_mutation_heatmap(self):
         '''Plots a heatmap over all mutations in the mutation csv file'''
@@ -40,7 +54,8 @@ class CoronaPlot:
         unique_mut = list(mutations.mutation.unique())
         order_level = sorted(unique_mut, key=lambda x: int("".join([i for i in x if i.isdigit()])))
 
-        fig = alt.Chart(mutations, title='Mutations. Dark blue == deletions. Light blue == unique mutations for that lineage').mark_rect(stroke='black').encode(
+        fig = alt.Chart(mutations, 
+                        title='Mutations. Dark blue == deletions. Light blue == unique mutations').mark_rect(stroke='black').encode(
             x=alt.X('mutation', axis=alt.Axis(labels=False, ticks=False), sort=order_level),
             y='pango',
             color=alt.Color('kind', legend=None),
@@ -49,8 +64,6 @@ class CoronaPlot:
                 alt.Tooltip('pango', title='Pango')]).properties(width=1200)
 
         return fig
-    
-    
     
     def plot_compare(self, compare_to: str):
         '''Compares query mutatations against mutations for a given corona lineage.'''
@@ -67,6 +80,20 @@ class CoronaPlot:
         query_df['kind'] = [3 if x in lineage_df.mutation.to_list() else 4 for x in query_df.mutation]
 
         concated = pd.concat([lineage_df, query_df])
+        concated['gene'] = ['E' if 26245 <= x <= 26472 else 
+                                'M' if 26523 <= x <= 27191 else
+                                'N' if 28274 <= x <= 29533 else
+                                'ORF1a' if 266 <= x <= 13468 else
+                                'ORF1b' if 13468 <= x <= 21555 else
+                                'ORF3a' if 25393 <= x <= 26220 else
+                                'ORF6' if 27202 <= x <= 27387 else
+                                'ORF7a' if 27394 <= x <= 27759 else
+                                'ORF7b' if 27756 <= x <= 27887 else
+                                'ORF8' if 27894 <= x <= 28259 else
+                                'ORF9b' if 28284 <= x <= 28577 else
+                                'S' if 21563 <= x <= 25384 else
+                                'None' for x in concated.position]
+        # Order of x axis
         position_level = sorted(concated.position.unique())
 
         fig = alt.Chart(concated, title={'text': [f'Compared against {compare_to}'], 
@@ -78,7 +105,8 @@ class CoronaPlot:
                         scale=alt.Scale(domain=[0, 1, 2, 3, 4], range=['#e7fc98 ', '#f64fe7', '#98fcf3', '#e7fc98', '#fc9898'])),
         tooltip=[
             alt.Tooltip('mutation', title='Mutation'),
-            alt.Tooltip('pango', title='Pango')])#.properties(width=1000, height=50)
+            alt.Tooltip('pango', title='Pango'),
+            alt.Tooltip('gene', title='Gene')])#.properties(width=1000, height=50)
 
         return fig
 
@@ -86,7 +114,20 @@ class CoronaPlot:
     def plot_mutations_inspection(self):
         '''Plots how common each mutation is for every mutation in the query sequence'''
         df = self.dataframes.make_mutations_inspection_df()
-
+        df['gene'] = ['E' if 26245 <= x <= 26472 else 
+                                'M' if 26523 <= x <= 27191 else
+                                'N' if 28274 <= x <= 29533 else
+                                'ORF1a' if 266 <= x <= 13468 else
+                                'ORF1b' if 13468 <= x <= 21555 else
+                                'ORF3a' if 25393 <= x <= 26220 else
+                                'ORF6' if 27202 <= x <= 27387 else
+                                'ORF7a' if 27394 <= x <= 27759 else
+                                'ORF7b' if 27756 <= x <= 27887 else
+                                'ORF8' if 27894 <= x <= 28259 else
+                                'ORF9b' if 28284 <= x <= 28577 else
+                                'S' if 21563 <= x <= 25384 else
+                                'None' for x in df.position]
+        
         fig = alt.Chart(df, title={'text': ['Mutations in'], 
                                          'subtitle': ['Green == regular, blue == deletion, red == N', 
                                                       'Size shows how common mutation is'], 
@@ -97,8 +138,7 @@ class CoronaPlot:
             size=alt.Size('pango_with_mutation', legend=None, scale=alt.Scale(range=[100, 1500])),
             tooltip=[
                 alt.Tooltip('mutation', title='Mutation'),
+                alt.Tooltip('gene', title='Gene'),
                 alt.Tooltip('mutation_list', title='Pangos with mutation')])#.properties(width=1200, height=150)
 
         return fig
-        
-        

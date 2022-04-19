@@ -22,7 +22,7 @@ class CoronaDataframe:
         converted_values = self._convert_alignment_value()
 
         alignment_df = pd.DataFrame({'nt': query, 'id': 'query', 
-                                 'pos': range(256, len(query) + 256), 
+                                 'position': range(256, len(query) + 256), 
                                  'value': converted_values, 
                                  'ref': reference})
         return alignment_df
@@ -69,7 +69,6 @@ class CoronaDataframe:
 
         return merged
     
-    
     def _convert_alignment_value(self) -> list:
         '''Converts alignments to numbers depending on it is N, 
         deletion, substitution or the same'''
@@ -92,4 +91,3 @@ class CoronaDataframe:
 
         return [f'{a}{index}{b}' for index,(a,b) in 
                 enumerate(zip(self.ref, self.query), 256) if a != b]
-

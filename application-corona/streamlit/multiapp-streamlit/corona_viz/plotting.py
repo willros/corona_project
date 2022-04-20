@@ -4,6 +4,24 @@ alt.data_transformers.disable_max_rows()
 
 from .dataframes import CoronaDataframe
 
+def gene_loci(df: pd.DataFrame) -> list:
+    '''Helper function for adding gene information'''
+    genes = ['E' if 26245 <= x <= 26472 else 
+             'M' if 26523 <= x <= 27191 else
+             'N' if 28274 <= x <= 29533 else
+             'ORF1a' if 266 <= x <= 13468 else
+             'ORF1b' if 13468 <= x <= 21555 else
+             'ORF3a' if 25393 <= x <= 26220 else
+             'ORF6' if 27202 <= x <= 27387 else
+             'ORF7a' if 27394 <= x <= 27759 else
+             'ORF7b' if 27756 <= x <= 27887 else
+             'ORF8' if 27894 <= x <= 28259 else
+             'ORF9b' if 28284 <= x <= 28577 else
+             'S' if 21563 <= x <= 25384 else
+             'None' for x in df.position]
+    
+    return genes
+
 class CoronaPlot:
     '''Class for plotting corona data. Uses Altair.'''
     
@@ -14,19 +32,7 @@ class CoronaPlot:
         ''' Returns chart and view which plots the alignment map of the query sequence'''
         ####### Chache with json file????? ######## 
         df = self.dataframes.make_alignment_df()
-        df['gene'] = ['E' if 26245 <= x <= 26472 else 
-                                'M' if 26523 <= x <= 27191 else
-                                'N' if 28274 <= x <= 29533 else
-                                'ORF1a' if 266 <= x <= 13468 else
-                                'ORF1b' if 13468 <= x <= 21555 else
-                                'ORF3a' if 25393 <= x <= 26220 else
-                                'ORF6' if 27202 <= x <= 27387 else
-                                'ORF7a' if 27394 <= x <= 27759 else
-                                'ORF7b' if 27756 <= x <= 27887 else
-                                'ORF8' if 27894 <= x <= 28259 else
-                                'ORF9b' if 28284 <= x <= 28577 else
-                                'S' if 21563 <= x <= 25384 else
-                                'None' for x in df.position]
+        df['gene'] = gene_loci(df)
         
         interval = alt.selection_interval(encodings=['x'])
 
@@ -80,19 +86,8 @@ class CoronaPlot:
         query_df['kind'] = [3 if x in lineage_df.mutation.to_list() else 4 for x in query_df.mutation]
 
         concated = pd.concat([lineage_df, query_df])
-        concated['gene'] = ['E' if 26245 <= x <= 26472 else 
-                                'M' if 26523 <= x <= 27191 else
-                                'N' if 28274 <= x <= 29533 else
-                                'ORF1a' if 266 <= x <= 13468 else
-                                'ORF1b' if 13468 <= x <= 21555 else
-                                'ORF3a' if 25393 <= x <= 26220 else
-                                'ORF6' if 27202 <= x <= 27387 else
-                                'ORF7a' if 27394 <= x <= 27759 else
-                                'ORF7b' if 27756 <= x <= 27887 else
-                                'ORF8' if 27894 <= x <= 28259 else
-                                'ORF9b' if 28284 <= x <= 28577 else
-                                'S' if 21563 <= x <= 25384 else
-                                'None' for x in concated.position]
+        concated['gene'] = gene_loci(concated)
+        
         # Order of x axis
         position_level = sorted(concated.position.unique())
 
@@ -110,23 +105,10 @@ class CoronaPlot:
 
         return fig
 
-
     def plot_mutations_inspection(self):
         '''Plots how common each mutation is for every mutation in the query sequence'''
         df = self.dataframes.make_mutations_inspection_df()
-        df['gene'] = ['E' if 26245 <= x <= 26472 else 
-                                'M' if 26523 <= x <= 27191 else
-                                'N' if 28274 <= x <= 29533 else
-                                'ORF1a' if 266 <= x <= 13468 else
-                                'ORF1b' if 13468 <= x <= 21555 else
-                                'ORF3a' if 25393 <= x <= 26220 else
-                                'ORF6' if 27202 <= x <= 27387 else
-                                'ORF7a' if 27394 <= x <= 27759 else
-                                'ORF7b' if 27756 <= x <= 27887 else
-                                'ORF8' if 27894 <= x <= 28259 else
-                                'ORF9b' if 28284 <= x <= 28577 else
-                                'S' if 21563 <= x <= 25384 else
-                                'None' for x in df.position]
+        df['gene'] = gene_loci(df)
         
         fig = alt.Chart(df, title={'text': ['Mutations in'], 
                                          'subtitle': ['Green == regular, blue == deletion, red == N', 

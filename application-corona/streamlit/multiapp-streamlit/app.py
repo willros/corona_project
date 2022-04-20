@@ -1,4 +1,3 @@
-
 import os
 import streamlit as st
 import numpy as np
@@ -10,11 +9,10 @@ from pages import upload, compare, inspect, alignment, info, heatmap
 app = MultiPage()
 
 # Main page
-img = 'corona.png'
+img = 'logo.png'
 display = Image.open(img)
-col1, col2 = st.columns(2)
-col1.image(display, width = 200)
-col2.title('Corona viz')
+col1, col2, col3 = st.columns(3)
+col2.image(display, width=300)
 
 app.add_page('Upload Data', upload.app)
 app.add_page('Compare against corona lineages', compare.app)
@@ -22,7 +20,6 @@ app.add_page('Inspect mutations', inspect.app)
 app.add_page('Alignment information', alignment.app)
 app.add_page('Sequence information', info.app)
 app.add_page('Heatmap', heatmap.app)
-
 
 app.run()
 

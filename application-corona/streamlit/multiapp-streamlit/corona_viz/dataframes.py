@@ -58,7 +58,6 @@ class CoronaDataframe:
         mutations = mutations[mutations['position'].isin(query_df.position)]
         query_df = query_df[query_df['position'].isin(mutations.position)]
 
-
         mutations_list = mutations.groupby('position')[['mutation', 'pango']].aggregate(list).reset_index()
         mutations_list['mutation_list'] = [list(zip(x, y)) for x,y in zip(mutations_list.pango, mutations_list.mutation)]
         mutations_list.drop(columns=['pango', 'mutation'], inplace=True)

@@ -13,4 +13,5 @@ def app():
     
     st.markdown(f'### Alignment of {name}')
     a, b = corona.plot_alignment_map()
-    st.altair_chart((a & b))
+    annotation_plot = corona.plot_gene_annotation()    
+    st.altair_chart((a & b) & annotation_plot)

@@ -1,5 +1,7 @@
 import altair as alt
 import pandas as pd
+import numpy as np
+
 alt.data_transformers.disable_max_rows()
 
 from .dataframes import CoronaDataframe
@@ -124,3 +126,30 @@ class CoronaPlot:
                 alt.Tooltip('mutation_list', title='Pangos with mutation')])#.properties(width=1200, height=150)
 
         return fig
+    
+    
+    def plot_gene_annotation(self):
+        '''Plots gene annotation map'''
+        mutations = pd.read_csv(self.dataframes.mutations)
+        mutations['position'] = mutations['mutation'].str.extract('(\d+)').astype(int)
+        mutations['gene'] = gene_loci(mutations)
+        
+        genes = mutations.groupby('gene').agg({'position': [np.min, np.max]}).reset_index()
+        genes.columns = ['gene', 'start', 'end']
+        genes = genes[lambda x: x.gene != 'Not annotated']
+        genes = genes.sort_values('end')
+        genes['len'] = genes['end'] - genes['start']
+
+        fig = alt.Chart(genes).mark_bar().encode(
+         alt.X('start:Q', axis=alt.Axis(title='Position')),
+         alt.X2('end:Q'),
+         alt.Fill('gene:N', sort=genes['gene'].to_list(), scale=alt.Scale(scheme='paired'),
+                  legend=alt.Legend(orient='bottom', title=None)),
+         alt.Text('gene'), 
+         tooltip=[alt.Tooltip('gene', title='Gene'),
+                  alt.Tooltip('start', title='Start'),
+                  alt.Tooltip('end', title='End'),
+                  alt.Tooltip('len', title='Length (nt)')]
+        ).properties(width=1200)
+        
+        return fig 
